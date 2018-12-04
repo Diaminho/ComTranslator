@@ -2,73 +2,111 @@ package sample.controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import jssc.SerialPort;  /*Импорт классов библиотеки jssc*/
-import jssc.SerialPortEvent;
-import jssc.SerialPortEventListener;
-import jssc.SerialPortException;
+import javafx.scene.text.Text;
+import jssc.*;
+import sample.Translator;
 
-public class ComController {  /*Класс чтения из порта*/
+import java.util.regex.Pattern;
+
+
+public class ComController { /*Класс чтения из порта*/
     private static SerialPort serialPort; /*Создаем объект типа SerialPort*/
+    private static SerialPort serialPortR; /*Создаем объект типа SerialPort*/
+
+    String translation;
 
     @FXML
     TextField inputID;
     @FXML
     TextField outputID;
     @FXML
-    TextField portID;
+    Text outputPortID;
     @FXML
-    static TextField tmpID;
+    Text inputPortID;
 
-    public TextField getTmpID() {
-        return tmpID;
-    }
 
-    public void setTmpID(TextField tmpID) {
-        this.tmpID = tmpID;
-    }
+
 
     public ComController(){}
 
-    @FXML
-    public void onTranslateButton(){
-        // TODO Auto-generated method stub
-        serialPort = new SerialPort(portID.getText());
+    private void openPort(SerialPort port){
         try {
-            serialPort.openPort();
-
-            serialPort.setParams(SerialPort.BAUDRATE_9600,
+            port.openPort();
+            port.setEventsMask(SerialPort.MASK_RXCHAR);
+            port.setParams(SerialPort.BAUDRATE_9600,
                     SerialPort.DATABITS_8,
                     SerialPort.STOPBITS_1,
                     SerialPort.PARITY_NONE);
-
-
-            serialPort.addEventListener(new EventListener(), SerialPort.MASK_RXCHAR);
-
-            serialPort.writeString("Hurrah!");
-            //tmpID.setText(serialPort.readString());
-            //System.out.println("done"+tmpID.getText());
-            serialPort.closePort();
-        }
-        catch (SerialPortException ex) {
+            //port.addEventListener(new EventListener(), SerialPort.MASK_RXCHAR);
+        } catch (SerialPortException ex) {
             System.out.println("There are an error on writing string to port т: " + ex);
         }
     }
 
 
-    static class EventListener implements SerialPortEventListener { /*Слушатель срабатывающий по появлению данных на COM-порт*/
+    private void sendData(String inputPort, String outputPort, String text){
+        serialPort = new SerialPort(inputPort);
+        serialPortR = new SerialPort(outputPort);
+        inputPortID.setText("Порт для отправки: "+inputPort);
+        inputPortID.setVisible(true);
+        outputPortID.setText("Порт для приема: "+outputPort);
+        outputPortID.setVisible(true);
+        try {
+            openPort(serialPort);
+            openPort(serialPortR);
+            serialPort.writeString(text);
+            //
+            String data;
+            while ((data=serialPortR.readString())==null){
+
+            }
+            //System.out.println("PRINT: "+serialPortR.getPortName());
+            System.out.println("Исходное слово: "+data);
+            data=Translator.doTranslate(data);
+
+            //SENDING BACK ANSWER
+            serialPortR.writeString(data);
+            while ((data=serialPort.readString())==null){
+
+            }
+            System.out.println("Перевод: "+data);
+            outputID.setText(data);
+            //
+            serialPortR.closePort();
+            serialPort.closePort();
+
+        }
+        catch (SerialPortException ex) {
+            System.out.println("There are an error on writing string to port: " + ex);
+        }
+    }
+
+
+    @FXML
+    public void onTranslateButton(){
+        String[] portNames = SerialPortList.getPortNames("/dev/pts/", Pattern.compile("[2-9]"));
+        System.out.println("PORT LIST:");
+        for (String s:portNames){
+            System.out.println(s);
+        }
+
+        sendData(portNames[0], portNames[1],inputID.getText());
+        //System.out.println("TEST: "+);
+
+    }
+
+    /*static class EventListener implements SerialPortEventListener {
+
         public void serialEvent (SerialPortEvent event) {
             if (event.isRXCHAR () && event.getEventValue () > 0){
                 try {
-                    System.out.println("PRINT: "+serialPort.getPortName());
-                    String data = serialPort.readString (event.getEventValue());
-                    System.out.print (data);
-                    tmpID.setText(data);
-                    //serialPort.closePort();
+
+
                 }
                 catch (SerialPortException ex) {
                     System.out.println (ex);
                 }
             }
         }
-    }
+    }*/
 }

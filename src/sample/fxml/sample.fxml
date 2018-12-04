@@ -33,7 +33,7 @@
       <Button mnemonicParsing="false" onAction="#onTranslateButton" text="Перевести" GridPane.halignment="CENTER" GridPane.rowIndex="3" />
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Введите слово для перевода:" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
       <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Перевод:" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-      <TextField fx:id="portID" />
-      <Text fx:id="tmpID" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" GridPane.columnIndex="1" />
+      <Text fx:id="inputPortID" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" textAlignment="CENTER" visible="false" GridPane.halignment="CENTER" />
+      <Text fx:id="outputPortID" strokeType="OUTSIDE" strokeWidth="0.0" text="Text" visible="false" GridPane.columnIndex="1" GridPane.halignment="CENTER" />
    </children>
 </GridPane>
