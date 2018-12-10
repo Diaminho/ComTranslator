@@ -26,6 +26,9 @@ public class ComController { /*Класс чтения из порта*/
 
 
     public ComController(){
+        if (SerialPortList.getPortNames().length!=0){
+            serialPort=new SerialPort(SerialPortList.getPortNames()[1]);
+        }
         serialPort=new SerialPort("/dev/pts/2");
     }
 
@@ -39,7 +42,8 @@ public class ComController { /*Класс чтения из порта*/
                     SerialPort.PARITY_NONE);
             serialPort.addEventListener(new EventListener(), SerialPort.MASK_RXCHAR);
         } catch (SerialPortException ex) {
-            System.out.println("There are an error on writing string to port т: " + ex);
+            System.out.println("There are an error on writing string to port: " + ex);
+
         }
     }
 
